@@ -1,77 +1,100 @@
-import { useState } from "react";
-import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import type { User } from "../types/user";
 import { addNewUser } from "../services/userService";
 import { useNavigate } from "react-router";
+import { userValidationSchema } from "../validation/userValidation";
 
 type UserFormProps = {
-    users: User[];
-    onUserAdded: (user: User) => void;
-}
+  users: User[];
+  onUserAdded: (user: User) => void;
+};
 
-export default function UserForm({ users, onUserAdded }: UserFormProps) {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const navigate = useNavigate();
+export default function UserForm({
+  users,
+  onUserAdded,
+}: UserFormProps) {
 
-    const handleSubmit = (async (e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const newId = users.length > 0 ? Math.max(...users.map(user => user.id)) + 1 : 1;
-        const newUser = {
+  const navigate = useNavigate();
+
+  return (
+    <div className="user-form-page">
+
+      <h1>Add User</h1>
+      <hr />
+
+      <Formik
+        initialValues={{
+          firstName: "",
+          lastName: "",
+          email: "",
+        }}
+
+        validationSchema={userValidationSchema}
+
+        onSubmit={async (values) => {
+
+          const newId =
+            users.length > 0
+              ? Math.max(...users.map(user => user.id)) + 1
+              : 1;
+
+          const newUser = {
             id: newId,
-            firstName,
-            lastName,
-            email,
-        }
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+          };
 
-        try {
+          try {
             const res = await addNewUser(newUser);
+
             const adduser = {
-                id: newId,
-                firstName: res.firstName,
-                lastName: res.lastName,
-                email: res.email
-            }
+              id: newId,
+              firstName: res.firstName,
+              lastName: res.lastName,
+              email: res.email,
+            };
+
             onUserAdded(adduser);
             navigate("/");
-        } catch (err) {
-            console.log("Error")
-        }
 
+          } catch (err) {
+            console.log(err);
+          }
+        }}
+      >
 
+        <Form className="user-form">
 
-    })
-    return (
-        <div className="user-form-page">
-            <h1>Add User</h1>
-            <hr />
+          <Field
+            type="text"
+            name="firstName"
+            placeholder="Enter the first name"
+          />
+          <ErrorMessage name="firstName" />
 
-            <form className="user-form" onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Enter the first name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                />
+          <Field
+            type="text"
+            name="lastName"
+            placeholder="Enter the last name"
+          />
+          <ErrorMessage name="lastName" />
 
-                <input
-                    type="text"
-                    placeholder="Enter the last name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                />
+          <Field
+            type="email"
+            name="email"
+            placeholder="Enter the email"
+          />
+          <ErrorMessage name="email" />
 
-                <input
-                    type="email"
-                    placeholder="Enter the email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+          <button type="submit">
+            Submit
+          </button>
 
-                <button type="submit">Submit</button>
-            </form>
-        </div>
-    );
+        </Form>
 
+      </Formik>
+
+    </div>
+  );
 }

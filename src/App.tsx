@@ -6,17 +6,18 @@ import Sidebar from "./components/Sidebar"
 import UserList from "./components/UserList";
 import UserForm from "./components/UserForm";
 import EditUser from "./components/EditUser";
-
 import {useState,useEffect} from "react";
 import type {User} from "./types/user";
 import {getUser}  from "./services/userService";
 import UserCard from "./components/UserCard";
 import Dashboard from "./pages/Dashboard";
-//import StudentDirectory from "./Students/StudentDirectory"
+import NotFound from "./components/PageNotFound";
+
 export default function App() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading,setLoading]=useState<boolean>(true);
+  const [error,setError]=useState<string>("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -24,7 +25,7 @@ export default function App() {
         const res = await getUser();
         setUsers(res);
       } catch (err) {
-        console.log("Something Error");
+        setError("Something went wrong.Unable to fetch the data from URL")
       }finally{
         setLoading(false);
       }
@@ -59,11 +60,12 @@ export default function App() {
       <div className="layout">
         <Sidebar />
         <Routes>
-          <Route path="/" element={<UserList users={users} onDeleteUser={deleteUser} loading={loading}/>} />
+          <Route path="/" element={<UserList users={users} onDeleteUser={deleteUser} loading={loading} error={error}/>} />
           <Route path="/add-user" element={<UserForm users={users} onUserAdded={addUsertoList} />} />
           <Route path="/edit/:id" element={<EditUser users={users} userEdited={userUpdate} />} />
           <Route path="/view/:id" element={<UserCard users={users}/>}/>
           <Route path="/dashboard" element={<Dashboard users={users}/>}/>
+          <Route  path="/*" element ={<NotFound/>} />
         </Routes>
 
 
