@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import type { User } from "../types/user";
-import { deleteUserApi } from "../services/userService";
+
 import Loading from "./Loading";
 import { useState } from "react";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
@@ -11,20 +11,18 @@ type UserListProps = {
     onDeleteUser: (id: number) => void;
     loading: boolean;
     error: string;
+    onFilter: (filterType:string,search:string)=>void;
 };
 
-export default function UserList({users,onDeleteUser,loading,error,}: UserListProps) {
+export default function UserList({users,onDeleteUser,loading,error,onFilter}: UserListProps) {
 
-    const [serach, setSearch] = useState("");
+    const [search, setSearch] = useState("");
     const [filtertype, setFiltertype] = useState("");
-    const [appliedfilter, setAppliedfilter] = useState("");
+    
 
     const handleDelete = async (id: number) => {
         try {
-            const res = await deleteUserApi(id);
-            console.log(res);
-
-            onDeleteUser(res.id);
+            onDeleteUser(id);
 
         } catch (err) {
             console.log(err);
@@ -33,22 +31,7 @@ export default function UserList({users,onDeleteUser,loading,error,}: UserListPr
     };
 
     // Filter users
-    const filteredUser = users.filter((user) => {
-
-        if (appliedfilter === "firstName") {
-            return user.firstName.toLowerCase().includes(serach.toLowerCase());
-        }
-
-        if (appliedfilter === "lastName") {
-            return user.lastName.toLowerCase().includes(serach.toLowerCase());
-        }
-
-        if (appliedfilter === "email") {
-            return user.email.toLowerCase().includes(serach.toLowerCase());
-        }
-
-        return true;
-    });
+    
 
     // DataGrid columns
     const columns: GridColDef[] = [
@@ -70,7 +53,7 @@ export default function UserList({users,onDeleteUser,loading,error,}: UserListPr
         {
             field: "actions",
             headerName: "Actions",
-            width: 200,
+            width: 300,
 
             renderCell: (params) => (
                 <>
@@ -108,7 +91,7 @@ export default function UserList({users,onDeleteUser,loading,error,}: UserListPr
     ];
 
     // DataGrid rows
-    const rows = filteredUser.map((user) => ({
+    const rows = users.map((user) => ({
         id: user.id,
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
@@ -127,7 +110,7 @@ export default function UserList({users,onDeleteUser,loading,error,}: UserListPr
                     className="search-input"
                     type="text"
                     placeholder="Enter the word to search"
-                    value={serach}
+                    value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
 
@@ -140,7 +123,7 @@ export default function UserList({users,onDeleteUser,loading,error,}: UserListPr
                         <option value="email">Email</option>
                     </select>
 
-                    <button type="button" onClick={() => {setAppliedfilter(filtertype);}}>Apply Filter</button>
+                    <button type="button" onClick={() => {onFilter(filtertype,search)}}>Apply Filter</button>
 
                 </div>
 

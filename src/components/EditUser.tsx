@@ -40,6 +40,7 @@ export default function EditUser({
         onSubmit={async (values, { setStatus }) => {
 
           const updateUser = {
+            id:Number(id),
             firstName: values.firstName,
             lastName: values.lastName,
             email: values.email,
@@ -47,10 +48,8 @@ export default function EditUser({
 
           try {
 
-            const result = await updatedUserApi(
-              Number(id),
-              updateUser
-            );
+            const result = await updatedUserApi(Number(id),updateUser);
+            console.log("PATCH RESULT:", result);
 
             const updatedUser: User = {
               id: Number(id),

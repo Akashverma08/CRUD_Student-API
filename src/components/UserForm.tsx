@@ -3,7 +3,7 @@ import type { User } from "../types/user";
 import { addNewUser } from "../services/userService";
 import { useNavigate } from "react-router";
 import { userValidationSchema } from "../validation/userValidation";
-
+import {useState} from "react";
 type UserFormProps = {
   users: User[];
   onUserAdded: (user: User) => void;
@@ -13,6 +13,7 @@ export default function UserForm({
   users,
   onUserAdded,
 }: UserFormProps) {
+  const [loading,setLoading]=useState(true);
 
   const navigate = useNavigate();
 
@@ -47,19 +48,13 @@ export default function UserForm({
 
           try {
             const res = await addNewUser(newUser);
-
-            const adduser = {
-              id: newId,
-              firstName: res.firstName,
-              lastName: res.lastName,
-              email: res.email,
-            };
-
-            onUserAdded(adduser);
+            onUserAdded(res);
             navigate("/");
 
           } catch (err) {
             console.log(err);
+          }finally{
+            setLoading(false);
           }
         }}
       >

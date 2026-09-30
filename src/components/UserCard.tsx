@@ -1,17 +1,35 @@
 import type { User } from "../types/user";
 import { useParams } from "react-router";
+import { getUserbyId } from "../services/userService";
+import { useState,useEffect } from "react";
 
 
-interface viewProps {
+/*interface viewProps {
   users: User[];
-}
+}*/
 
-export default function UserCard({ users }: viewProps) {
+
+//export default function UserCard({ users }: viewProps)
+export default function UserCard() {
   const { id } = useParams();
+  const [fetchSingleUser,setFetchSingleUser]=useState<User | null>(null);
+  useEffect(() => {
+    const getsingleUser = async () => {
+      try {
+        const user = await getUserbyId(Number(id));
+        setFetchSingleUser(user);
 
-  const singleUser = users.find(
+      } catch (err) {
+        console.log("Error");
+
+      }
+
+    }
+    getsingleUser();
+  }, [])
+  /*const singleUser = users.find(
     (user) => user.id === Number(id)
-  );
+  );*/
 
   return (
     <div className="user-card-container">
@@ -20,16 +38,16 @@ export default function UserCard({ users }: viewProps) {
 
         <ul>
           <li>
-            <strong>ID:</strong> {singleUser?.id}
+            <strong>ID:</strong> {fetchSingleUser?.id}
           </li>
 
           <li>
             <strong>Name:</strong>{" "}
-            {`${singleUser?.firstName} ${singleUser?.lastName}`}
+            {`${fetchSingleUser?.firstName} ${fetchSingleUser?.lastName}`}
           </li>
 
           <li>
-            <strong>Email:</strong> {singleUser?.email}
+            <strong>Email:</strong> {fetchSingleUser?.email}
           </li>
         </ul>
       </div>
